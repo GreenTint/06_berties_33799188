@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Added</title>
+</head>
+<body>
+    <h1>Book Added Successfully!</h1>
+    <p>This book is added to the database:</p>
+    <ul>
+        <li><strong>Name:</strong> <%= name %></li>
+        <li><strong>Price:</strong> £<%= Number(price).toFixed(2) %></li>
+    </ul>
+    <a href="/books/list">View all books</a>
+</body>
+</html>

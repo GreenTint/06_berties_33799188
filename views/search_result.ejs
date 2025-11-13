@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Search Results - <%= shopData.shopName %></title>
+    <link rel="stylesheet" type="text/css" href="/main.css">
+</head>
+<body>
+    <h1>Search Results for "<%= keyword %>"</h1>
+
+    <% if (!searchResults || searchResults.length === 0) { %>
+        <p>No books found matching your search.</p>
+    <% } else { %>
+        <ul>
+            <% searchResults.forEach(function(book) { %>
+                <li>
+                    <strong><%= book.name %></strong> — £<%= Number(book.price).toFixed(2) %>
+                </li>
+            <% }); %>
+        </ul>
+    <% } %>
+
+    <p><a href="/books/search">Back to Search</a></p>
+</body>
+</html>
