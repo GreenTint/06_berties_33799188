@@ -13,3 +13,14 @@ router.get('/search-result', function (req, res, next) {
 
 // Export the router object so index.js can access it
 module.exports = router
+
+    router.get('/list', function(req, res, next) {
+        let sqlquery = "SELECT * FROM books"; // query database to get all the books
+        // execute sql query
+        db.query(sqlquery, (err, result) => {
+            if (err) {
+                next(err)
+            }
+            res.send(result)
+         });
+    });
