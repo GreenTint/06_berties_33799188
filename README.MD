@@ -4,7 +4,7 @@ Sample web application for the Dynamic Web Applications module.
 
 A small book shop app built with Node.js, Express, and EJS templates.
 
-# Features
+## Features
 
 Browse all books.
 
@@ -18,7 +18,7 @@ Simple registration page for users.
 
 Fully styled using a CSS stylesheet (main.css).
 
-#Installation
+## Installation
 
 Clone the repository:
 
@@ -51,7 +51,7 @@ Then open your browser and go to:
 
 http://localhost:8000/
 
-Project Structure
+## Project Structure
 .
 ├── index.js             # Main server file
 ├── routes/
@@ -68,7 +68,7 @@ Project Structure
 │   └── main.css         # Stylesheet
 └── package.json
 
-Dependencies
+## Dependencies
 
 Express
 
