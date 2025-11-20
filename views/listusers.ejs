@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Users for <%= shopData.shopName %></title>
+  <link rel="stylesheet" href="/main.css">
+</head>
+<body>
+  <h1>Users of <%= shopData.shopName %></h1>
+
+  <% if (!users || users.length === 0) { %>
+    <p>No users found.</p>
+  <% } else { %>
+    <ul>
+      <% users.forEach(function(user) { %>
+        <li>
+          <strong><%= user.username %></strong> — 
+          <%= user.first %> <%= user.last %> — 
+          <%= user.email %>
+        </li>
+      <% }); %>
+    </ul>
+  <% } %>
+</body>
+</html>
