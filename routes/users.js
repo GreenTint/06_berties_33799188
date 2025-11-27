@@ -5,12 +5,18 @@ const bcrypt = require('bcrypt')
 const saltRounds = 10
 
 const redirectLogin = (req, res, next) => {
-    if (!req.session.userId ) {
-        res.redirect('./login'); 
-    } else { 
-        next();
+    if (!req.session.userId) {
+
+        // If on university server, redirect there
+        if (req.headers.host.includes("doc.gold.ac.uk")) {
+            return res.redirect("/usr/441/users/login");
+        }
+
+        // Otherwise you're on localhost
+        return res.redirect("/users/login");
     }
-}
+    next();
+};
 router.get('/register', function (req, res, next) {
     res.render('register.ejs')
 })

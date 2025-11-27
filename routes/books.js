@@ -2,12 +2,19 @@
 const express = require("express")
 const router = express.Router()
 
+
 const redirectLogin = (req, res, next) => {
     if (!req.session.userId) {
-        res.redirect('/users/login');
-    } else {
-        next();
+
+        // If on university server, redirect there
+        if (req.headers.host.includes("doc.gold.ac.uk")) {
+            return res.redirect("/usr/441/users/login");
+        }
+
+        // Otherwise you're on localhost
+        return res.redirect("/users/login");
     }
+    next();
 };
 
 
