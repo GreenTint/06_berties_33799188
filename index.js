@@ -1,9 +1,5 @@
 require('dotenv').config();
 
-console.log("DB_USER:", process.env.DB_USER || process.env.BB_USER);
-console.log("DB_PASSWORD:", (process.env.DB_PASSWORD || process.env.BB_PASSWORD) ? "SET" : "NOT SET");
-console.log("DB_DATABASE:", process.env.DB_NAME || process.env.BB_DATABASE);
-
 // Import express and ejs
 var express = require ('express')
 var ejs = require('ejs')
