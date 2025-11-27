@@ -15,10 +15,10 @@ CREATE TABLE IF NOT EXISTS books (
 -- Create the users table
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50),
+    username VARCHAR(50) UNIQUE,
     first VARCHAR(100),
     last VARCHAR(100),
-    email VARCHAR(255),
+    email VARCHAR(255) UNIQUE,
     hashedPassword VARCHAR(255)
 );
 
@@ -27,10 +27,11 @@ CREATE TABLE IF NOT EXISTS login_audit (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50),
     success BOOLEAN,
-    loginTime DATETIME DEFAULT CURRENT_TIMESTAMP
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create the application user and grant privileges
 CREATE USER IF NOT EXISTS 'berties_books_app'@'localhost' IDENTIFIED BY 'qwertyuiop';
 GRANT ALL PRIVILEGES ON berties_books.* TO 'berties_books_app'@'localhost';
+
 FLUSH PRIVILEGES;

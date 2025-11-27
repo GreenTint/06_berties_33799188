@@ -9,14 +9,13 @@ router.get('/register', function (req, res, next) {
 })
 
 router.post('/registered', function (req, res, next) {
-
-    const plainPassword = req.body.password
+    const plainPassword = req.body.password;
 
     bcrypt.hash(plainPassword, saltRounds, function(err, hashedPassword) {
-        if (err) return next(err)
+        if (err) return next(err);
 
         const sqlquery = "INSERT INTO users (username, first, last, email, hashedPassword) VALUES (?, ?, ?, ?, ?)";
-        
+
         db.query(sqlquery, 
             [
                 req.body.username,
@@ -26,17 +25,24 @@ router.post('/registered', function (req, res, next) {
                 hashedPassword
             ], 
         (err, result) => {
-            if (err) return next(err)
+            if (err) {
+                if (err.code === 'ER_DUP_ENTRY') {
+                    // Friendly message for duplicate username or email
+                    return res.send(`A user with that username or email already exists. Please try again.`);
+                } else {
+                    return next(err);
+                }
+            }
 
-            result = 'Hello '+ req.body.first + ' ' + req.body.last +' you are now registered!<br>';
-            result += 'We will send an email to you at ' + req.body.email + '<br>';
-            result += 'Your password is: '+ plainPassword +'<br>';
-            result += 'Your hashed password is: '+ hashedPassword;
+            let message = `Hello ${req.body.first} ${req.body.last}, you are now registered!<br>`;
+            message += `We will send an email to you at ${req.body.email}<br>`;
+            message += `Your password is: ${plainPassword}<br>`;
+            message += `Your hashed password is: ${hashedPassword}`;
+            res.send(message);
+        });
+    });
+});
 
-            res.send(result)
-        }) 
-    })
-})
 
 // Show all users (without passwords)
 router.get('/list', function(req, res, next) {

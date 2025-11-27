@@ -1,4 +1,9 @@
 require('dotenv').config();
+
+console.log("DB_USER:", process.env.DB_USER || process.env.BB_USER);
+console.log("DB_PASSWORD:", (process.env.DB_PASSWORD || process.env.BB_PASSWORD) ? "SET" : "NOT SET");
+console.log("DB_DATABASE:", process.env.DB_NAME || process.env.BB_DATABASE);
+
 // Import express and ejs
 var express = require ('express')
 var ejs = require('ejs')
@@ -22,16 +27,15 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.locals.shopData = {shopName: "Bertie's Books"}
 
 const db = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    host: process.env.BB_HOST,
+    user: process.env.BB_USER, 
+    password: process.env.BB_PASSWORD, 
+    database: process.env.BB_DATABASE, 
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
 });
-global.db = db;
-
+global.db = db; // <-- this makes it accessible in users.js
 
 // Load the route handlers
 const mainRoutes = require("./routes/main")
