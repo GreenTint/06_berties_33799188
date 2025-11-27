@@ -21,8 +21,8 @@
         <tr>
           <td><%= log.id %></td>
           <td><%= log.username %></td>
-          <td><%= log.status %></td>
-          <td><%= log.timestamp %></td>
+          <td><%= log.success ? 'SUCCESS' : 'FAIL' %></td>
+          <td><%= log.loginTime %></td>
         </tr>
       <% }) %>
     </table>

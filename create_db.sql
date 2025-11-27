@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS login_audit (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50),
     success BOOLEAN,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    loginTime DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create the application user and grant privileges
