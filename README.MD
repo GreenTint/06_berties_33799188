@@ -1,201 +1,152 @@
-Bertie's Books
+# Bertie's Books
 
-Sample web application for the Dynamic Web Applications module.
+Sample Node.js web application for the Dynamic Web Applications module. Bertie's Books is a small shop app built with Express, EJS, MySQL, and session-based authentication.
 
-A small book shop app built with Node.js, Express, EJS templates, MySQL, and session-based login.
+## Features
 
-Features
+- Browse, search, and list bargain books (priced under £20)
+- Add new books to the database
+- User registration with hashed passwords (bcrypt)
+- Session-based login, logout, and access control middleware
+- Login audit trail
 
-Browse all books
+## Prerequisites
 
-Add new books to the database
+- Node.js and npm
+- MySQL server
 
-Search for books (supports partial matches)
+## Installation
 
-View bargain books (priced under £20)
+1. **Clone and install dependencies**
 
-User registration with hashed passwords
+   ```bash
+   git clone <repository-url>
+   cd <repository-folder>
+   npm install
+   ```
 
-User login with session-based authentication
+2. **Configure environment variables**
 
-Logout route
+   Create a `.env` file based on the database credentials you plan to use (defaults are in `index.js`).
 
-Access control using redirectLogin
+3. **Set up the MySQL schema**
 
-Styled using main.css
+   ```sql
+   CREATE DATABASE berties_books;
 
-Installation
-1. Clone the repository
-git clone <repository-url>
-cd <repository-folder>
+   CREATE USER 'berties_books_app'@'localhost' IDENTIFIED BY 'qwertyuiop';
+   GRANT ALL PRIVILEGES ON berties_books.* TO 'berties_books_app'@'localhost';
 
-2. Install dependencies
-npm install
+   USE berties_books;
 
-3. Set up MySQL
+   CREATE TABLE books (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       name VARCHAR(255) NOT NULL,
+       price DECIMAL(10,2) NOT NULL
+   );
 
-Create the database:
+   CREATE TABLE users (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       username VARCHAR(255) UNIQUE,
+       first VARCHAR(255),
+       last VARCHAR(255),
+       email VARCHAR(255) UNIQUE,
+       hashedPassword VARCHAR(255)
+   );
 
-CREATE DATABASE berties_books;
+   CREATE TABLE login_audit (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       username VARCHAR(255),
+       success BOOLEAN,
+       loginTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   );
+   ```
 
+   You can also run `create_db.sql` and `insert_test_data.sql` to create the schema and seed data.
 
-Create the user:
+## Running the application
 
-CREATE USER 'berties_books_app'@'localhost' IDENTIFIED BY 'qwertyuiop';
-GRANT ALL PRIVILEGES ON berties_books.* TO 'berties_books_app'@'localhost';
-
-
-Create the books table:
-
-CREATE TABLE books (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    price DECIMAL(10,2) NOT NULL
-);
-
-
-Create the users table:
-
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) UNIQUE,
-    first VARCHAR(255),
-    last VARCHAR(255),
-    email VARCHAR(255) UNIQUE,
-    hashedPassword VARCHAR(255)
-);
-
-
-Create the login audit table:
-
-CREATE TABLE login_audit (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255),
-    success BOOLEAN,
-    loginTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-Running the Application
-
-Start the server:
-
+```bash
 node index.js
+```
 
+Visit `http://localhost:8000/` in your browser.
 
-Open the browser:
+## Project structure
 
-http://localhost:8000/
-
-Project Structure
+```
 index.js
 routes/
-    main.js
-    users.js
-    books.js
+  main.js
+  users.js
+  books.js
 views/
-    index.ejs
-    about.ejs
-    login.ejs
-    register.ejs
-    listusers.ejs
-    search.ejs
-    search_result.ejs
-    list.ejs
-    addbook.ejs
-    bargainbooks.ejs
-    audit.ejs
-    bookadded.ejs
+  index.ejs
+  about.ejs
+  login.ejs
+  register.ejs
+  listusers.ejs
+  search.ejs
+  search_result.ejs
+  list.ejs
+  addbook.ejs
+  bargainbooks.ejs
+  audit.ejs
+  bookadded.ejs
 public/
-    main.css
+  main.css
 package.json
+```
 
-Authentication & Access Control
-Sessions
+## Authentication & access control
 
-Configured using express-session in index.js.
+- Sessions configured via `express-session` in `index.js`
+- Password hashing using `bcrypt`
+- Logout route at `/logout` destroys the session
+- `redirectLogin` middleware protects private pages:
 
-Login
-
-When a user logs in successfully, the session stores:
-
-req.session.userId
-
-req.session.first
-
-req.session.last
-
-Passwords are hashed using bcrypt.
-
-Logout
-
-A logout route is available at:
-
-/logout
-
-
-This destroys the session and logs the user out.
-
-redirectLogin Middleware
-
-Used to protect pages:
-
-const redirectLogin = (req, res, next) => {
+  ```js
+  const redirectLogin = (req, res, next) => {
     if (!req.session.userId) {
-        res.redirect('/users/login');
+      res.redirect('/users/login');
     } else {
-        next();
+      next();
     }
-};
+  };
+  ```
 
-Access Control Summary (Task 5)
-Protected Routes (Login Required)
+### Protected routes (login required)
 
-/users/list
+- `/users/list`
+- `/users/audit`
+- `/logout`
+- `/books/addbook` (GET and POST)
+- `/books/list`
 
-/users/audit
+### Public routes
 
-/logout
+- `/`
+- `/about`
+- `/users/login`
+- `/users/register`
+- `/books/search`
+- `/books/search_result`
+- `/books/bargainbooks`
 
-/books/addbook (GET and POST)
+## Testing notes
 
-/books/list
+- When logged out, protected pages redirect to `/users/login`.
+- When logged in, protected pages load normally and allow the intended actions.
 
-Public Routes
+## Dependencies
 
-/
+- express
+- ejs
+- mysql2
+- bcrypt
+- express-session
+- dotenv
 
-/about
+## License
 
-/users/login
-
-/users/register
-
-/books/search
-
-/books/search_result
-
-/books/bargainbooks
-
-Testing
-
-When logged out, visiting protected pages redirects to /users/login.
-
-When logged in, protected pages load normally and work correctly.
-
-Dependencies
-
-express
-
-ejs
-
-mysql2
-
-bcrypt
-
-express-session
-
-dotenv
-
-License
-
-This project is for educational use only.
+This project is provided for educational purposes.
