@@ -4,6 +4,13 @@ const router = express.Router()
 const bcrypt = require('bcrypt')
 const saltRounds = 10
 
+const redirectLogin = (req, res, next) => {
+    if (!req.session.userId ) {
+        res.redirect('./login'); 
+    } else { 
+        next();
+    }
+}
 router.get('/register', function (req, res, next) {
     res.render('register.ejs')
 })
@@ -45,7 +52,7 @@ router.post('/registered', function (req, res, next) {
 
 
 // Show all users (without passwords)
-router.get('/list', function(req, res, next) {
+router.get('/list', redirectLogin, function(req, res, next) {
 
     const sqlquery = "SELECT username, first, last, email FROM users";
 
@@ -74,7 +81,7 @@ router.post('/loggedin', function(req, res, next) {
             // Log failed attempt
             db.query("INSERT INTO login_audit (username, success) VALUES (?, false)", [username], (err) => {
                 if (err) console.error("Failed to log audit:", err);
-                res.send('Login failed: Username not found');
+                return res.send('Login failed: Username not found');
             });
         } else {
             const hashedPassword = rows[0].hashedPassword;
@@ -85,16 +92,24 @@ router.post('/loggedin', function(req, res, next) {
                 if (err) return next(err);
 
                 if (result) {
+
+                    // ✅ SAVE SESSION HERE
+                    req.session.userId = username;
+                    req.session.first = first;
+                    req.session.last = last;
+
                     // Log successful login
                     db.query("INSERT INTO login_audit (username, success) VALUES (?, true)", [username], (err) => {
                         if (err) console.error("Failed to log audit:", err);
-                        res.send(`Hello ${first} ${last}! You are successfully logged in.`);
+
+                        return res.send(`Hello ${first} ${last}! You are successfully logged in.`);
                     });
+
                 } else {
                     // Log failed login
                     db.query("INSERT INTO login_audit (username, success) VALUES (?, false)", [username], (err) => {
                         if (err) console.error("Failed to log audit:", err);
-                        res.send('Login failed: Incorrect password');
+                        return res.send('Login failed: Incorrect password');
                     });
                 }
             });
@@ -104,13 +119,15 @@ router.post('/loggedin', function(req, res, next) {
 
 
 
-router.get('/audit', function(req, res, next) {
+router.get('/audit', redirectLogin, function(req, res, next) {
     const sqlquery = "SELECT * FROM login_audit ORDER BY loginTime DESC";
     db.query(sqlquery, (err, results) => {
         if (err) return next(err);
         res.render('audit.ejs', { auditLogs: results });
     });
 });
+
+
 
 
 

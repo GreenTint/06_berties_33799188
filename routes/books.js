@@ -2,6 +2,15 @@
 const express = require("express")
 const router = express.Router()
 
+const redirectLogin = (req, res, next) => {
+    if (!req.session.userId) {
+        res.redirect('/users/login');
+    } else {
+        next();
+    }
+};
+
+
 // Show search page
 router.get('/search', function(req, res, next) {
     res.render("search.ejs");
@@ -36,12 +45,12 @@ router.get('/list', function(req, res, next) {
         });
 });
 
-router.get('/addbook', function(req, res, next) {
+router.get('/addbook', redirectLogin, function(req, res, next) {
     res.render("addbook.ejs");
 });
 
 // Handle form submission and save data
-router.post('/addbook', function(req, res, next) {
+router.post('/addbook', redirectLogin, function(req, res, next) {
     const { name, price } = req.body;
 
     const sqlquery = "INSERT INTO books (name, price) VALUES (?, ?)";
