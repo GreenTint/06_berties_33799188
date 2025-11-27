@@ -25,19 +25,14 @@ Access control using redirectLogin
 Styled using main.css
 
 Installation
-
-Clone the repository:
-
+1. Clone the repository
 git clone <repository-url>
 cd <repository-folder>
 
-
-Install dependencies:
-
+2. Install dependencies
 npm install
 
-
-Make sure you have MySQL installed and running.
+3. Set up MySQL
 
 Create the database:
 
@@ -87,7 +82,7 @@ Start the server:
 node index.js
 
 
-Then open:
+Open the browser:
 
 http://localhost:8000/
 
@@ -121,7 +116,7 @@ Configured using express-session in index.js.
 
 Login
 
-When a user logs in successfully, the following session data is stored:
+When a user logs in successfully, the session stores:
 
 req.session.userId
 
@@ -142,7 +137,7 @@ This destroys the session and logs the user out.
 
 redirectLogin Middleware
 
-A reusable function is used to block access to protected pages:
+Used to protect pages:
 
 const redirectLogin = (req, res, next) => {
     if (!req.session.userId) {
@@ -155,47 +150,43 @@ const redirectLogin = (req, res, next) => {
 Access Control Summary (Task 5)
 Protected Routes (Login Required)
 
-/users/list – Shows registered users
+/users/list
 
-/users/audit – Shows login attempts
+/users/audit
 
-/logout – Only logged-in users can log out
+/logout
 
-/books/addbook (both GET and POST) – Adding books requires login
+/books/addbook (GET and POST)
 
-/books/list – (Chosen to be protected) shows full book list
+/books/list
 
-Public Routes (No Login Required)
+Public Routes
 
-/ – Home
+/
 
-/about – About page
+/about
 
-/users/login – Login page
+/users/login
 
-/users/register – Registration page
+/users/register
 
-/books/search – Search for books
+/books/search
 
-/books/search_result – Search results
+/books/search_result
 
-/books/bargainbooks – Bargain books
+/books/bargainbooks
 
 Testing
 
-When logged out:
+When logged out, visiting protected pages redirects to /users/login.
 
-Visiting protected pages redirects to /users/login.
-
-When logged in:
-
-Protected pages load normally and functionality works.
+When logged in, protected pages load normally and work correctly.
 
 Dependencies
 
-Express
+express
 
-EJS
+ejs
 
 mysql2
 
@@ -207,4 +198,4 @@ dotenv
 
 License
 
-This project is for educational purposes.
+This project is for educational use only.
