@@ -194,7 +194,6 @@ const redirectLogin = (req, res, next) => {
 
 - express
 - ejs
-- mysql2
 - bcrypt
 - express-session
 - dotenv
