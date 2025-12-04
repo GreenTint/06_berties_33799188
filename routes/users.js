@@ -32,41 +32,66 @@ router.get('/register', function (req, res, next) {
 });
 
 // Handle new user registration
-router.post('/registered', function (req, res, next) {
+router.post('/loggedin', function(req, res, next) {
+    const username = req.body.username;
     const plainPassword = req.body.password;
 
-    bcrypt.hash(plainPassword, saltRounds, function(err, hashedPassword) {
+    const sqlquery =
+        "SELECT hashedPassword, first, last FROM users WHERE username = ?";
+
+    db.query(sqlquery, [username], (err, rows) => {
         if (err) return next(err);
 
-        const sqlquery =
-            "INSERT INTO users (username, first, last, email, hashedPassword) VALUES (?, ?, ?, ?, ?)";
+        // If no matching username in the database
+        if (rows.length === 0) {
+            db.query("INSERT INTO login_audit (username, success) VALUES (?, false)", [username], () => {});
+            return res.send('Login failed: Username not found');
+        }
 
-        db.query(sqlquery,
-            [
-                req.body.username,
-                req.body.first,
-                req.body.last,
-                req.body.email,
-                hashedPassword
-            ],
-            (err, result) => {
+        const hashedPassword = rows[0].hashedPassword;
+        const first = rows[0].first;
+        const last = rows[0].last;
 
-                if (err) {
-                    if (err.code === 'ER_DUP_ENTRY') {
-                        return res.send(`A user with that username or email already exists. Please try again.`);
-                    }
-                    return next(err);
-                }
+        bcrypt.compare(plainPassword, hashedPassword, (err, result) => {
+            if (err) return next(err);
 
-                let message = `Hello ${req.body.first} ${req.body.last}, you are now registered!<br>`;
-                message += `We will send an email to you at ${req.body.email}<br>`;
-                message += `Your password is: ${plainPassword}<br>`;
-                message += `Your hashed password is: ${hashedPassword}`;
-                res.send(message);
+            // Password incorrect
+            if (!result) {
+                db.query("INSERT INTO login_audit (username, success) VALUES (?, false)", [username], () => {});
+                return res.send('Login failed: Incorrect password');
             }
-        );
+
+            /*
+             * LOGIN SUCCESSFUL
+             * Store the user's identity in the session
+             */
+            req.session.userId = username;
+            req.session.first = first;
+            req.session.last = last;
+
+            // Record successful login attempt
+            db.query("INSERT INTO login_audit (username, success) VALUES (?, true)", () => {});
+
+            /*
+             * Determine where the user should be sent after login.
+             * - If they attempted to access a protected page, return them there.
+             * - Otherwise, default to /users/list.
+             *
+             * On the Goldsmiths server, all routes must include the /usr/441 base path.
+             * On localhost, no base path is needed.
+             */
+            const base = req.headers.host.includes("doc.gold.ac.uk")
+                ? "/usr/441"
+                : "";
+
+            let redirectTo = req.session.returnTo || "/users/list";
+            delete req.session.returnTo;
+
+            return res.redirect(base + redirectTo);
+        });
     });
 });
+
 
 // Show all users (but hide passwords)
 router.get('/list', redirectLogin, function(req, res, next) {
