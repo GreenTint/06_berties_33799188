@@ -30,6 +30,7 @@ router.get('/register', function (req, res, next) {
     res.render('register.ejs');
 });
 
+
 // Handle new user registration
 router.post('/registered', function (req, res, next) {
 
@@ -64,21 +65,17 @@ router.post('/registered', function (req, res, next) {
                     return next(err);
                 }
 
-                // Detect Goldsmiths VM base path
-                const base = req.headers.host.includes("doc.gold.ac.uk")
-                    ? "/usr/441"
-                    : "";
-
-                // SUCCESS MESSAGE — No trailing slash in link
+                // SUCCESS MESSAGE — NO HOMEPAGE LINK
                 res.send(`
                     <h1>Registration Complete</h1>
                     <p>Hello <strong>${username}</strong>, you have successfully registered!</p>
-                    <p><a href="${base}">Return to Home Page</a></p>
+                    <p>You may now <a href="/users/login">log in</a>.</p>
                 `);
             }
         );
     });
 });
+
 
 
 // Show login page
