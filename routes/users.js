@@ -73,24 +73,21 @@ router.post('/loggedin', function(req, res, next) {
             db.query("INSERT INTO login_audit (username, success) VALUES (?, true)", () => {});
 
             /*
-             * Determine where the user should be sent after login.
-             * - If they attempted to access a protected page, return them there.
-             * - Otherwise, default to /users/list.
+             * NEW REDIRECT LOGIC:
+             * Always send the user to the homepage after login.
              *
-             * On the Goldsmiths server, all routes must include the /usr/441 base path.
-             * On localhost, no base path is needed.
+             * On the Goldsmiths server, the homepage is /usr/441/
+             * On localhost, it is simply /
              */
             const base = req.headers.host.includes("doc.gold.ac.uk")
                 ? "/usr/441"
                 : "";
 
-            let redirectTo = req.session.returnTo || "/users/list";
-            delete req.session.returnTo;
-
-            return res.redirect(base + redirectTo);
+            return res.redirect(base + "/");
         });
     });
 });
+
 
 
 // Show all users (but hide passwords)
