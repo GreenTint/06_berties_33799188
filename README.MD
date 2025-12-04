@@ -1,205 +1,120 @@
 # Bertie's Books
 
+## Overview
+
 Sample web application for the Dynamic Web Applications module.
 
-A small book shop app built with Node.js, Express, EJS templates, MySQL, and session-based login.
-
----
+A small book shop app built with Node.js, Express, EJS templates, MySQL, session-based login, and a JSON API.
 
 ## Features
 
-- **Browse all books**
-- **Add new books to the database**
-- **Search for books** (supports partial matches)
-- **View bargain books** (priced under £20)
-- **User registration with hashed passwords**
-- **User login with session-based authentication**
-- **Logout route**
-- **Access control using `redirectLogin`**
-- **Styled using `main.css`**
-
----
+- Browse all books
+- Add new books to the database
+- Search for books (supports partial matches)
+- View bargain books (priced under £20)
+- User registration with hashed passwords
+- User login with session-based authentication
+- Login audit log (successful and failed attempts)
+- Weather checker page using OpenWeather API
+- JSON API for external developers
+- Search, price filtering, and sorting options in API
+- Logout route
+- Access control using redirectLogin
+- Styled using main.css
 
 ## Installation
 
-1. **Clone the repository**
-    ```bash
-    git clone <repository-url>
-    cd <repository-folder>
-    ```
-2. **Install dependencies**
-    ```bash
-    npm install
-    ```
-3. **Set up MySQL**
+**Clone the repository:**
+```bash
+git clone <repository-url>
+cd <repository-folder>
+```
 
-    - **Create the database:**
-        ```sql
-        CREATE DATABASE berties_books;
-        ```
+**Install dependencies:**
+```bash
+npm install
+```
 
-    - **Create the user:**
-        ```sql
-        CREATE USER 'berties_books_app'@'localhost' IDENTIFIED BY 'qwertyuiop';
-        GRANT ALL PRIVILEGES ON berties_books.* TO 'berties_books_app'@'localhost';
-        ```
+**Set up MySQL:**
 
-    - **Create the books table:**
-        ```sql
-        CREATE TABLE books (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(255) NOT NULL,
-            price DECIMAL(10,2) NOT NULL
-        );
-        ```
-
-    - **Create the users table:**
-        ```sql
-        CREATE TABLE users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(255) UNIQUE,
-            first VARCHAR(255),
-            last VARCHAR(255),
-            email VARCHAR(255) UNIQUE,
-            hashedPassword VARCHAR(255)
-        );
-        ```
-
-    - **Create the login audit table:**
-        ```sql
-        CREATE TABLE login_audit (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(255),
-            success BOOLEAN,
-            loginTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        ```
-
----
-
-## Running the Application
-
-- **Start the server:**
-
-    ```bash
-    node index.js
-    ```
-
-- **Open the browser:**
-
-    [http://localhost:8000/](http://localhost:8000/)
-
----
+Create the database and configure your `.env` file with database credentials.
 
 ## Project Structure
 
-```
-index.js
-routes/
-    main.js
-    users.js
-    books.js
-views/
-    index.ejs
-    about.ejs
-    login.ejs
-    register.ejs
-    listusers.ejs
-    search.ejs
-    search_result.ejs
-    list.ejs
-    addbook.ejs
-    bargainbooks.ejs
-    audit.ejs
-    bookadded.ejs
-public/
-    main.css
-package.json
-```
+Authentication & Access Control
+Sessions
 
----
+Configured using express-session in index.js.
 
-## Authentication & Access Control
-
-### Sessions
-
-Configured using `express-session` in `index.js`.
-
-### Login
+Login
 
 When a user logs in successfully, the session stores:
 
-- `req.session.userId`
-- `req.session.first`
-- `req.session.last`
+req.session.userId
 
-Passwords are hashed using **bcrypt**.
+req.session.first
 
-### Logout
+req.session.last
+
+Passwords are hashed using bcrypt.
+
+Logout
 
 A logout route is available at:
 
-```
 /logout
-```
+
 
 This destroys the session and logs the user out.
+## Project Structure
+/books/list
 
-### `redirectLogin` Middleware
+/weather
 
-Used to protect pages:
+Public Routes:
 
-```js
-const redirectLogin = (req, res, next) => {
-    if (!req.session.userId) {
-        res.redirect('/users/login');
-    } else {
-        next();
-    }
-};
-```
+/
 
----
+/about
 
-## Access Control Summary (Task 5)
+/users/login
+
+/users/register
+
+/books/search
+
+/books/search_result
+
+/books/bargainbooks
+
+API Documentation (Task 5)
+
+The API provides machine-readable access to the list of books.
+## Routes
 
 **Protected Routes (Login Required):**
 
-- `/users/list`
-- `/users/audit`
-- `/logout`
-- `/books/addbook` (GET and POST)
-- `/books/list`
+- /users/list
+- /users/audit
+- /logout
+- /books/addbook (GET and POST)
+- /books/list
+- /weather
 
 **Public Routes:**
 
-- `/`
-- `/about`
-- `/users/login`
-- `/users/register`
-- `/books/search`
-- `/books/search_result`
-- `/books/bargainbooks`
+- /
+- /about
+- /users/login
+- /users/register
+- /books/search
+- /books/search_result
+- /books/bargainbooks
 
----
+## API Documentation
+4. Sort the results
+The API provides machine-readable access to the list of books.
 
-## Testing
+**Base URL:** `/api/books`
 
-- When logged out, visiting protected pages redirects to `/users/login`.
-- When logged in, protected pages load normally and work correctly.
-
----
-
-## Dependencies
-
-- express
-- ejs
-- bcrypt
-- express-session
-- dotenv
-
----
-
-## License
-
-This project is for educational use only.
+**1. Get all books**
