@@ -89,4 +89,64 @@ A logout route is available at `/logout`. This destroys the session and logs the
 
 **Base URL:** `/api/books`
 
-**Get all books**
+### Get All Books
+
+Returns every book in the database.
+
+**Request:**
+```
+GET /api/books
+```
+
+**Example Response:**
+```json
+[
+    { "id": 1, "name": "Brighton Rock", "price": 20.25 },
+    { "id": 2, "name": "Animal Farm", "price": 12.99 }
+]
+```
+
+---
+
+### Search for Books by Keyword
+
+Returns books whose names contain the search term.
+
+**Request:**
+```
+GET /api/books?search=world
+```
+
+---
+
+### Filter Books by Price Range
+
+Returns books between the given minimum and maximum price.
+
+**Request:**
+```
+GET /api/books?min_price=5&max_price=10
+```
+
+---
+
+### Sort Results
+
+Sort alphabetically by name:
+```
+GET /api/books?sort=name
+```
+
+Sort by ascending price:
+```
+GET /api/books?sort=price
+```
+
+---
+
+### Combined Example
+
+Search + price filter + sorting:
+```
+GET /api/books?search=world&min_price=5&max_price=20&sort=price
+```
