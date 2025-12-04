@@ -69,16 +69,17 @@ router.post('/registered', function (req, res, next) {
                     ? "/usr/441"
                     : "";
 
-                // SUCCESS MESSAGE — No EJS needed
+                // SUCCESS MESSAGE — No trailing slash in link
                 res.send(`
                     <h1>Registration Complete</h1>
                     <p>Hello <strong>${username}</strong>, you have successfully registered!</p>
-                    <p><a href="${base}/">Return to Home Page</a></p>
+                    <p><a href="${base}">Return to Home Page</a></p>
                 `);
             }
         );
     });
 });
+
 
 // Show login page
 router.get('/login', function(req, res, next) {
