@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/main.css">
+</head>
+<body>
+
+<div class="weather-container">
+
+<h1>Weather Checker</h1>
+
+<!-- Weather Form -->
+<form action="/weather" method="get">
+    <input 
+        type="text" 
+        name="city" 
+        placeholder="Enter a city"
+        value="<%= city ? city : '' %>" 
+        required
+    >
+    <button type="submit">Get Weather</button>
+</form>
+
+<!-- Error -->
+<% if (error) { %>
+    <p class="error"><%= error %></p>
+<% } %>
+
+<!-- Weather Card -->
+<% if (weather) { %>
+<div class="weather-card">
+    <%- weather %>
+</div>
+<% } %>
+
+</div>
+
+</body>
+</html>
