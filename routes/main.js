@@ -5,29 +5,29 @@ const router = express.Router();
 
 /*
  * Global redirectLogin middleware
- * Ensures the same login behavior across all route files.
- * Remembers the page the user attempted to visit.
+ * Automatically detects whether we're on localhost or doc.gold.ac.uk.
+ * Saves attempted URL so login can return the user to where they came from.
  */
 const redirectLogin = (req, res, next) => {
     if (!req.session.userId) {
 
-        // Remember where the user was trying to go
+        // Save attempted page
         req.session.returnTo = req.originalUrl;
 
-        // University server login path
-        if (req.headers.host.includes("doc.gold.ac.uk")) {
-            return res.redirect("/usr/441/users/login");
-        }
+        // Auto-detect correct base path
+        const base = req.headers.host.includes("doc.gold.ac.uk")
+            ? "/usr/441"
+            : "";
 
-        // Localhost login path
-        return res.redirect("/users/login");
+        // Redirect to login
+        return res.redirect(`${base}/users/login`);
     }
     next();
 };
 
 // Render home/menu page
 router.get('/', function(req, res, next) {
-    // Pass the session into the template so login/logout buttons can work
+    // Pass session into EJS so login/logout buttons work
     res.render('index.ejs', { session: req.session });
 });
 
@@ -36,7 +36,7 @@ router.get('/about', function(req, res, next) {
     res.render('about.ejs');
 });
 
-// Handle adding a new book
+// Handle adding a new book (NOT protected)
 router.post('/bookadded', function(req, res, next) {
     let sqlquery = "INSERT INTO books (name, price) VALUES (?, ?)";
     let newrecord = [req.body.name, req.body.price];
@@ -57,15 +57,15 @@ router.get('/logout', redirectLogin, (req, res) => {
     req.session.destroy(err => {
         if (err) return res.redirect('./');
 
-        // Clear session cookie
+        // Clear session cookie completely
         res.clearCookie('connect.sid');
 
-        // Redirect to login page after logout
-        if (req.headers.host.includes("doc.gold.ac.uk")) {
-            return res.redirect("/usr/441/users/login");
-        }
+        // Auto-detect correct base path for redirect
+        const base = req.headers.host.includes("doc.gold.ac.uk")
+            ? "/usr/441"
+            : "";
 
-        return res.redirect("/users/login");
+        return res.redirect(`${base}/users/login`);
     });
 });
 

@@ -4,22 +4,22 @@ const express = require("express");
 const router = express.Router();
 
 /*
- * Updated redirectLogin that remembers where the user was trying to go.
- * This makes login redirection consistent across the whole application.
+ * redirectLogin middleware with automatic base path detection.
+ * Ensures correct redirection on both localhost and Goldsmiths server.
  */
 const redirectLogin = (req, res, next) => {
     if (!req.session.userId) {
 
-        // Remember attempted URL (important for returning after login)
+        // Remember attempted URL for redirect after login
         req.session.returnTo = req.originalUrl;
 
-        // Goldsmiths server path
-        if (req.headers.host.includes("doc.gold.ac.uk")) {
-            return res.redirect("/usr/441/users/login");
-        }
+        // Auto-detect whether we're on doc.gold.ac.uk
+        const base = req.headers.host.includes("doc.gold.ac.uk")
+            ? "/usr/441"
+            : "";
 
-        // Local login page
-        return res.redirect("/users/login");
+        // Redirect to proper login route
+        return res.redirect(`${base}/users/login`);
     }
     next();
 };

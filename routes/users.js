@@ -6,22 +6,22 @@ const saltRounds = 10;
 
 /*
  * Middleware to protect routes that require login.
- * If the user is not logged in, save the URL they were trying to access,
- * then redirect them to the correct login page depending on the server.
+ * Automatically detects whether the app is running on localhost
+ * or Goldsmiths server and redirects to the correct login URL.
  */
 const redirectLogin = (req, res, next) => {
     if (!req.session.userId) {
 
-        // Save the page the user was attempting to visit
+        // Save the page the user was trying to visit
         req.session.returnTo = req.originalUrl;
 
-        // University server login path
-        if (req.headers.host.includes("doc.gold.ac.uk")) {
-            return res.redirect("/usr/441/users/login");
-        }
+        // Auto-detect base path for server environment
+        const base = req.headers.host.includes("doc.gold.ac.uk")
+            ? "/usr/441"
+            : "";
 
-        // Localhost login path
-        return res.redirect("/users/login");
+        // Redirect to the correct login page
+        return res.redirect(`${base}/users/login`);
     }
     next();
 };
@@ -51,16 +51,13 @@ router.post('/registered', function (req, res, next) {
             ],
             (err, result) => {
 
-                // Handle duplicate usernames or emails
                 if (err) {
                     if (err.code === 'ER_DUP_ENTRY') {
                         return res.send(`A user with that username or email already exists. Please try again.`);
-                    } else {
-                        return next(err);
                     }
+                    return next(err);
                 }
 
-                // Confirmation message
                 let message = `Hello ${req.body.first} ${req.body.last}, you are now registered!<br>`;
                 message += `We will send an email to you at ${req.body.email}<br>`;
                 message += `Your password is: ${plainPassword}<br>`;
@@ -88,9 +85,8 @@ router.get('/login', function(req, res, next) {
 
 /*
  * Handle login submission.
- * Validates user credentials, logs the login attempt,
- * saves the session, and redirects the user back to the page
- * they originally attempted to access.
+ * Validates credentials, logs login attempts,
+ * saves the session, and redirects user back to intended page.
  */
 router.post('/loggedin', function(req, res, next) {
     const username = req.body.username;
@@ -112,11 +108,9 @@ router.post('/loggedin', function(req, res, next) {
         const first = rows[0].first;
         const last = rows[0].last;
 
-        // Compare submitted password with stored hash
         bcrypt.compare(plainPassword, hashedPassword, (err, result) => {
             if (err) return next(err);
 
-            // Incorrect password
             if (!result) {
                 db.query("INSERT INTO login_audit (username, success) VALUES (?, false)", [username], () => {});
                 return res.send('Login failed: Incorrect password');
@@ -127,10 +121,10 @@ router.post('/loggedin', function(req, res, next) {
             req.session.first = first;
             req.session.last = last;
 
-            // Log successful login
             db.query("INSERT INTO login_audit (username, success) VALUES (?, true)", [username], () => {});
 
-            // Redirect back to original page OR to /users/list
+            // Determine redirect destination
+            // Fall back to /users/list if no returnTo was saved
             const redirectTo = req.session.returnTo || "/users/list";
             delete req.session.returnTo;
 
@@ -139,10 +133,7 @@ router.post('/loggedin', function(req, res, next) {
     });
 });
 
-/*
- * Show login audit log (requires login).
- * Displays successful and failed login attempts.
- */
+// Audit log (requires login)
 router.get('/audit', redirectLogin, function(req, res, next) {
     const sqlquery = "SELECT * FROM login_audit ORDER BY loginTime DESC";
 
@@ -152,5 +143,5 @@ router.get('/audit', redirectLogin, function(req, res, next) {
     });
 });
 
-// Export router so app.js can load it
+// Export router
 module.exports = router;

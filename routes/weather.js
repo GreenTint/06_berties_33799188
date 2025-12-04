@@ -3,20 +3,24 @@ const express = require('express');
 const router = express.Router();
 const request = require('request');
 
-// Protect weather route with login middleware
+/*
+ * Login protection middleware.
+ * Automatically detects whether the app is running locally
+ * or on the Goldsmiths server and redirects correctly.
+ */
 const redirectLogin = (req, res, next) => {
     if (!req.session.userId) {
 
-        // Remember intended destination
+        // Remember intended page to return after login
         req.session.returnTo = req.originalUrl;
 
-        // Goldsmiths server login path
-        if (req.headers.host.includes("doc.gold.ac.uk")) {
-            return res.redirect("/usr/441/users/login");
-        }
+        // Auto-detect base path
+        const base = req.headers.host.includes("doc.gold.ac.uk")
+            ? "/usr/441"
+            : "";
 
-        // Local login
-        return res.redirect("/users/login");
+        // Redirect to correct login page
+        return res.redirect(`${base}/users/login`);
     }
     next();
 };
@@ -26,7 +30,7 @@ router.get('/', redirectLogin, (req, res, next) => {
 
     let city = req.query.city || null;
 
-    // If no city yet → show blank form
+    // No city chosen yet -> show blank form
     if (!city) {
         return res.render('weather', {
             title: "Weather Checker",
@@ -41,7 +45,7 @@ router.get('/', redirectLogin, (req, res, next) => {
 
     request(url, (err, response, body) => {
 
-        // Network or request failure
+        // Connection issues
         if (err) {
             return res.render('weather', {
                 title: "Weather Checker",
@@ -65,7 +69,7 @@ router.get('/', redirectLogin, (req, res, next) => {
             });
         }
 
-        // Missing main data
+        // Missing weather data
         if (!weather || !weather.main) {
             return res.render('weather', {
                 title: "Weather Checker",
@@ -85,7 +89,7 @@ router.get('/', redirectLogin, (req, res, next) => {
             });
         }
 
-        // Create friendly display message
+        // Weather info message
         let wmsg = `
             <h2>Weather in ${weather.name}</h2>
             <p><strong>Temperature:</strong> ${weather.main.temp}°C</p>
