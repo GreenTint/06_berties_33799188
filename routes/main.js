@@ -3,23 +3,31 @@
 const express = require("express");
 const router = express.Router();
 
-
+/*
+ * Global redirectLogin middleware
+ * Ensures the same login behavior across all route files.
+ * Remembers the page the user attempted to visit.
+ */
 const redirectLogin = (req, res, next) => {
     if (!req.session.userId) {
 
-        // If on university server, redirect there
+        // Remember where the user was trying to go
+        req.session.returnTo = req.originalUrl;
+
+        // University server login path
         if (req.headers.host.includes("doc.gold.ac.uk")) {
             return res.redirect("/usr/441/users/login");
         }
 
-        // Otherwise you're on localhost
+        // Localhost login path
         return res.redirect("/users/login");
     }
     next();
 };
+
 // Render home/menu page
 router.get('/', function(req, res, next) {
-    // Pass session into index.ejs so login/logout buttons work
+    // Pass the session into the template so login/logout buttons can work
     res.render('index.ejs', { session: req.session });
 });
 
@@ -34,28 +42,32 @@ router.post('/bookadded', function(req, res, next) {
     let newrecord = [req.body.name, req.body.price];
 
     db.query(sqlquery, newrecord, (err, result) => {
-        if (err) {
-            next(err);
-        } else {
-            res.send(
-                'This book is added to database, name: ' 
-                + req.body.name 
-                + ' price ' 
-                + req.body.price
-            );
-        }
+        if (err) return next(err);
+
+        res.send(
+            `This book was added to the database:<br>
+            Name: ${req.body.name}<br>
+            Price: ${req.body.price}`
+        );
     });
 });
 
 // Logout route
 router.get('/logout', redirectLogin, (req, res) => {
     req.session.destroy(err => {
-        if (err) {
-            return res.redirect('./');
+        if (err) return res.redirect('./');
+
+        // Clear session cookie
+        res.clearCookie('connect.sid');
+
+        // Redirect to login page after logout
+        if (req.headers.host.includes("doc.gold.ac.uk")) {
+            return res.redirect("/usr/441/users/login");
         }
-        res.send('You are now logged out. <a href="./">Home</a>');
+
+        return res.redirect("/users/login");
     });
 });
 
-// Export the router so index.js can use it
+// Export router
 module.exports = router;

@@ -4,19 +4,22 @@
     <title>Welcome to <%= shopData.shopName %></title>
     <link rel="stylesheet" type="text/css" href="/main.css" />
   </head>
+
   <body>
     <h1>Welcome to <%= shopData.shopName %></h1>
 
-    <p><a href="about">About <%= shopData.shopName %></a></p>
-    <p><a href="books/search">Search for Books</a></p>
-    <p><a href="books/list">List All Books</a></p>
-    <p><a href="books/addbook">Add a New Book</a></p>
-    <p><a href="books/bargainbooks">Bargain Books (Under £20)</a></p>
-    <p><a href="users/register">Register</a></p>
+    <p><a href="/about">About <%= shopData.shopName %></a></p>
+    <p><a href="/books/search">Search for Books</a></p>
+    <p><a href="/books/list">List All Books</a></p>
+    <p><a href="/books/addbook">Add a New Book</a></p>
+    <p><a href="/books/bargainbooks">Bargain Books (Under £20)</a></p>
+    <p><a href="/weather">Weather Checker</a></p>
+    <p><a href="/users/register">Register</a></p>
+
     <% if (!session || !session.userId) { %>
-    <a href="/users/login">Login</a>
-<% } else { %>
-    <a href="/logout">Logout</a>
-<% } %>
+      <p><a href="/users/login">Login</a></p>
+    <% } else { %>
+      <p><a href="/logout">Logout</a></p>
+    <% } %>
   </body>
 </html>

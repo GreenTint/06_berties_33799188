@@ -3,8 +3,26 @@ const express = require('express');
 const router = express.Router();
 const request = require('request');
 
-// GET /weather
-router.get('/', (req, res, next) => {
+// Protect weather route with login middleware
+const redirectLogin = (req, res, next) => {
+    if (!req.session.userId) {
+
+        // Remember intended destination
+        req.session.returnTo = req.originalUrl;
+
+        // Goldsmiths server login path
+        if (req.headers.host.includes("doc.gold.ac.uk")) {
+            return res.redirect("/usr/441/users/login");
+        }
+
+        // Local login
+        return res.redirect("/users/login");
+    }
+    next();
+};
+
+// GET /weather (requires login)
+router.get('/', redirectLogin, (req, res, next) => {
 
     let city = req.query.city || null;
 
@@ -35,7 +53,7 @@ router.get('/', (req, res, next) => {
 
         let weather;
 
-        // JSON parsing error (invalid API key, broken response, etc.)
+        // JSON parsing error
         try {
             weather = JSON.parse(body);
         } catch (e) {
@@ -47,7 +65,7 @@ router.get('/', (req, res, next) => {
             });
         }
 
-        // API returned bad data or missing fields
+        // Missing main data
         if (!weather || !weather.main) {
             return res.render('weather', {
                 title: "Weather Checker",
@@ -67,7 +85,7 @@ router.get('/', (req, res, next) => {
             });
         }
 
-        // Create detailed weather message (safe optional chaining)
+        // Create friendly display message
         let wmsg = `
             <h2>Weather in ${weather.name}</h2>
             <p><strong>Temperature:</strong> ${weather.main.temp}°C</p>
