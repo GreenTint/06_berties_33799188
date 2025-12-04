@@ -53,21 +53,23 @@ router.post('/bookadded', function(req, res, next) {
 });
 
 // Logout route
-router.get('/logout', redirectLogin, (req, res) => {
+router.get('/logout', (req, res) => {
     req.session.destroy(err => {
         if (err) return res.redirect('./');
 
-        // Clear session cookie completely
+        // Remove session cookie
         res.clearCookie('connect.sid');
 
-        // Auto-detect correct base path for redirect
+        // Auto-detect correct base path
         const base = req.headers.host.includes("doc.gold.ac.uk")
             ? "/usr/441"
             : "";
 
-        return res.redirect(`${base}/users/login`);
+        // Redirect to HOME page after logout
+        return res.redirect(base + "/");
     });
 });
+
 
 // Export router
 module.exports = router;
