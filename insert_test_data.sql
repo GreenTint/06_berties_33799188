@@ -10,5 +10,10 @@ VALUES (
     'Gold',
     'User',
     'gold@example.com',
-    '$2y$10$M0B3vE9e7H3rhP2WnA3CeOq9BYy9yNnMuZ7xm/D6tAOyZ5rMEtFCS'
-);
+    '$2b$10$tN1wBiusN5rETFlEML59oOXsRae2YeSZa/MP0ycX6B2KdikmosCRm'
+)
+ON DUPLICATE KEY UPDATE
+    hashedPassword = VALUES(hashedPassword),
+    first = VALUES(first),
+    last = VALUES(last),
+    email = VALUES(email);
