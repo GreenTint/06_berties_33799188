@@ -30,6 +30,56 @@ router.get('/register', function (req, res, next) {
     res.render('register.ejs');
 });
 
+// Handle new user registration
+router.post('/registered', function (req, res, next) {
+
+    const username = req.body.username;
+    const plainPassword = req.body.password;
+
+    bcrypt.hash(plainPassword, saltRounds, function(err, hashedPassword) {
+        if (err) return next(err);
+
+        const sqlquery = 
+            "INSERT INTO users (username, first, last, email, hashedPassword) VALUES (?, ?, ?, ?, ?)";
+
+        db.query(sqlquery,
+            [
+                username,
+                req.body.first,
+                req.body.last,
+                req.body.email,
+                hashedPassword
+            ],
+            (err, result) => {
+
+                // Handle duplicate username/email
+                if (err) {
+                    if (err.code === "ER_DUP_ENTRY") {
+                        return res.send(`
+                            <h1>Registration Error</h1>
+                            <p>That username or email already exists.</p>
+                            <a href="/users/register">Try again</a>
+                        `);
+                    }
+                    return next(err);
+                }
+
+                // Detect Goldsmiths VM base path
+                const base = req.headers.host.includes("doc.gold.ac.uk")
+                    ? "/usr/441"
+                    : "";
+
+                // SUCCESS MESSAGE — No EJS needed
+                res.send(`
+                    <h1>Registration Complete</h1>
+                    <p>Hello <strong>${username}</strong>, you have successfully registered!</p>
+                    <p><a href="${base}/">Return to Home Page</a></p>
+                `);
+            }
+        );
+    });
+});
+
 // Show login page
 router.get('/login', function(req, res, next) {
     res.render('login.ejs');
