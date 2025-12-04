@@ -41,80 +41,52 @@ Create the database and configure your `.env` file with database credentials.
 
 ## Project Structure
 
-Authentication & Access Control
-Sessions
+### Authentication & Access Control
+
+**Sessions**
 
 Configured using express-session in index.js.
 
-Login
+**Login**
 
 When a user logs in successfully, the session stores:
-
-req.session.userId
-
-req.session.first
-
-req.session.last
+- `req.session.userId`
+- `req.session.first`
+- `req.session.last`
 
 Passwords are hashed using bcrypt.
 
-Logout
+**Logout**
 
-A logout route is available at:
+A logout route is available at `/logout`. This destroys the session and logs the user out.
 
-/logout
-
-
-This destroys the session and logs the user out.
-## Project Structure
-/books/list
-
-/weather
-
-Public Routes:
-
-/
-
-/about
-
-/users/login
-
-/users/register
-
-/books/search
-
-/books/search_result
-
-/books/bargainbooks
-
-API Documentation (Task 5)
-
-The API provides machine-readable access to the list of books.
 ## Routes
 
 **Protected Routes (Login Required):**
 
-- /users/list
-- /users/audit
-- /logout
-- /books/addbook (GET and POST)
-- /books/list
-- /weather
+```
+/users/list
+/users/audit
+/logout
+/books/addbook
+/books/list
+/weather
+```
 
 **Public Routes:**
 
-- /
-- /about
-- /users/login
-- /users/register
-- /books/search
-- /books/search_result
-- /books/bargainbooks
+```
+/
+/about
+/users/login
+/users/register
+/books/search
+/books/search_result
+/books/bargainbooks
+```
 
 ## API Documentation
-4. Sort the results
-The API provides machine-readable access to the list of books.
 
 **Base URL:** `/api/books`
 
-**1. Get all books**
+**Get all books**
